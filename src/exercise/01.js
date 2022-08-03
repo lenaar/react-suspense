@@ -3,28 +3,13 @@
 
 import * as React from 'react'
 // 🐨 you'll also need to get the fetchPokemon function from ../pokemon:
-import {fetchPokemon, PokemonDataView, PokemonErrorBoundary} from '../pokemon'
-
-function createResource(promise) {
-  let status = 'pending'
-  let result = promise.then(
-    resolved => {
-      status = 'success'
-      result = resolved
-    },
-    rejected => {
-      status = 'error'
-      result = rejected
-    },
-  )
-  return {
-    read() {
-      if (status === 'pending' || status === 'error') throw result
-      if (status === 'success') return result
-      throw new Error('This should be impossible')
-    },
-  }
-}
+import {
+  fetchPokemon,
+  PokemonDataView,
+  PokemonErrorBoundary,
+  PokemonInfoFallback,
+} from '../pokemon'
+import {createResource} from '../utils'
 
 const resource = createResource(fetchPokemon('pikachu'))
 
@@ -48,7 +33,7 @@ function App() {
     <div className="pokemon-info-app">
       <div className="pokemon-info">
         <PokemonErrorBoundary>
-          <React.Suspense fallback={<div>Loading Pokemon...</div>}>
+          <React.Suspense fallback={<PokemonInfoFallback name="Pickachu" />}>
             <PokemonInfo />
           </React.Suspense>
         </PokemonErrorBoundary>
