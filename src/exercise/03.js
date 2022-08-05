@@ -26,13 +26,17 @@ function PokemonInfo({pokemonResource}) {
 // 🐨 create a SUSPENSE_CONFIG variable right here and configure timeoutMs to
 // whatever feels right to you, then try it out and tweak it until you're happy
 // with the experience.
-const SUSPENSE_CONFIG = {timeoutMs: 10000}
+const SUSPENSE_CONFIG = {
+  timeoutMs: 4000,
+  busyDelayMs: 300,
+  busyMinDurationMs: 700,
+}
 
 function createPokemonResource(pokemonName) {
   // 🦉 once you've finished the exercise, play around with the delay...
   // the second parameter to fetchPokemon is a delay so you can play around
   // with different timings
-  let delay = 450
+  // let delay = 200
   // try a few of these fetch times:
   // shows busy indicator
   // delay = 450
@@ -43,7 +47,7 @@ function createPokemonResource(pokemonName) {
   // shows busy indicator for a split second
   // 💯 this is what the extra credit improves
   // delay = 200
-  return createResource(fetchPokemon(pokemonName, delay))
+  return createResource(fetchPokemon(pokemonName))
 }
 
 function App() {
@@ -80,7 +84,7 @@ function App() {
         🐨 add inline styles here to set the opacity to 0.6 if the
         useTransition above is pending
       */}
-      <div className="pokemon-info" style={isPending ? {opacity: 0.6} : {}}>
+      <div className={`pokemon-info ${isPending ? 'pokemon-loading' : ''}`}>
         {pokemonResource ? (
           <PokemonErrorBoundary
             onReset={handleReset}
