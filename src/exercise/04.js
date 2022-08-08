@@ -33,14 +33,14 @@ const SUSPENSE_CONFIG = {
 const PokemonResourceCacheContext = React.createContext()
 
 function PokemonCacheProvider({children}) {
-  const pokemonResourceCache = React.useRef({})
+  const cache = React.useRef({})
 
-  const getPokemonResource = React.useCallback(pokemonName => {
-    const lowerPokemonName = pokemonName.toLowerCase()
-    let resource = pokemonResourceCache.current[lowerPokemonName]
+  const getPokemonResource = React.useCallback(name => {
+    const lowerName = name.toLowerCase()
+    let resource = cache.current[lowerName]
     if (!resource) {
-      resource = createPokemonResource(lowerPokemonName)
-      pokemonResourceCache[lowerPokemonName].current = resource
+      resource = createPokemonResource(lowerName)
+      cache[lowerName].current = resource
     }
     return resource
   }, [])
@@ -70,7 +70,7 @@ function PokemonApp() {
   const [pokemonName, setPokemonName] = React.useState('')
   const [startTransition, isPending] = React.useTransition(SUSPENSE_CONFIG)
   const [pokemonResource, setPokemonResource] = React.useState(null)
-  const getPokemonResourceCache = usePokemonResourceCache()
+  const getPokemonResource = usePokemonResourceCache()
 
   React.useEffect(() => {
     if (!pokemonName) {
@@ -78,9 +78,9 @@ function PokemonApp() {
       return
     }
     startTransition(() => {
-      setPokemonResource(getPokemonResourceCache(pokemonName))
+      setPokemonResource(getPokemonResource(pokemonName))
     })
-  }, [getPokemonResourceCache, pokemonName, startTransition])
+  }, [getPokemonResource, pokemonName, startTransition])
 
   function handleSubmit(newPokemonName) {
     setPokemonName(newPokemonName)
