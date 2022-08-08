@@ -40,7 +40,7 @@ function PokemonCacheProvider({children}) {
     let resource = cache.current[lowerName]
     if (!resource) {
       resource = createPokemonResource(lowerName)
-      cache[lowerName].current = resource
+      cache.current[lowerName] = resource
     }
     return resource
   }, [])
