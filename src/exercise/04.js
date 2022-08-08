@@ -1,5 +1,6 @@
 // Cache resources
 // http://localhost:3000/isolated/exercise/04.js
+//
 
 import * as React from 'react'
 import {
@@ -29,28 +30,43 @@ const SUSPENSE_CONFIG = {
   busyMinDurationMs: 700,
 }
 
-// 🐨 create a pokemonResourceCache object
-const pokemonResourceCache = {}
-const PokemonResourceCacheContext = React.createContext(getPokemonResource)
+const PokemonResourceCacheContext = React.createContext()
 
-function getPokemonResource(pokemonName) {
-  let resource = pokemonResourceCache[pokemonName]
-  if (!resource) {
-    resource = createPokemonResource(pokemonName)
-    pokemonResourceCache[pokemonName] = resource
-  }
-  return resource
+function PokemonCacheProvider({children}) {
+  const pokemonResourceCache = React.useRef({})
+
+  const getPokemonResource = React.useCallback(pokemonName => {
+    const lowerPokemonName = pokemonName.toLowerCase()
+    let resource = pokemonResourceCache.current[lowerPokemonName]
+    if (!resource) {
+      resource = createPokemonResource(lowerPokemonName)
+      pokemonResourceCache[lowerPokemonName].current = resource
+    }
+    return resource
+  }, [])
+
+  return (
+    <PokemonResourceCacheContext.Provider value={getPokemonResource}>
+      {children}
+    </PokemonResourceCacheContext.Provider>
+  )
 }
 
 function usePokemonResourceCache() {
-  return React.useContext(PokemonResourceCacheContext)
+  const context = React.useContext(PokemonResourceCacheContext)
+  if (!context) {
+    throw new Error(
+      `usePokemonResourceCache should be used within a PokemonCacheProvider`,
+    )
+  }
+  return context
 }
 
 function createPokemonResource(pokemonName) {
   return createResource(fetchPokemon(pokemonName))
 }
 
-function App() {
+function PokemonApp() {
   const [pokemonName, setPokemonName] = React.useState('')
   const [startTransition, isPending] = React.useTransition(SUSPENSE_CONFIG)
   const [pokemonResource, setPokemonResource] = React.useState(null)
@@ -95,6 +111,14 @@ function App() {
         )}
       </div>
     </div>
+  )
+}
+
+function App() {
+  return (
+    <PokemonCacheProvider>
+      <PokemonApp />
+    </PokemonCacheProvider>
   )
 }
 
