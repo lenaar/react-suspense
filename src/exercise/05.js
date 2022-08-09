@@ -1,5 +1,6 @@
 // Suspense Image
 // http://localhost:3000/isolated/exercise/05.js
+//
 
 import * as React from 'react'
 import {
@@ -7,34 +8,26 @@ import {
   getImageUrlForPokemon,
   PokemonInfoFallback,
   PokemonForm,
-  PokemonDataView,
   PokemonErrorBoundary,
 } from '../pokemon'
 import {createResource} from '../utils'
+
+const PokemonInfo = React.lazy(() =>
+  import('../lazy/pokemon-info-render-as-you-fetch'),
+)
 
 // ❗❗❗❗
 // 🦉 On this one, make sure that you UNCHECK the "Disable cache" checkbox
 // in your DevTools "Network Tab". We're relying on that cache for this
 // approach to work!
 // ❗❗❗❗
+
 function preloadImage(src) {
   return new Promise(resolve => {
     const img = document.createElement('img')
     img.src = src
     img.onload = () => resolve(src)
   })
-}
-
-function PokemonInfo({pokemonResource}) {
-  const pokemon = pokemonResource.pokemon.read()
-  return (
-    <div>
-      <div className="pokemon-info__img-wrapper">
-        <img src={pokemonResource.image.read()} alt={pokemon.name} />
-      </div>
-      <PokemonDataView pokemon={pokemon} />
-    </div>
-  )
 }
 
 const SUSPENSE_CONFIG = {
@@ -56,9 +49,9 @@ function getPokemonResource(name) {
 }
 
 function createPokemonResource(pokemonName) {
-  const pokemon = createResource(fetchPokemon(pokemonName))
+  const data = createResource(fetchPokemon(pokemonName))
   const image = createResource(preloadImage(getImageUrlForPokemon(pokemonName)))
-  return {pokemon, image}
+  return {data, image}
 }
 
 function App() {
